@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>7 Segment Display</title>
+		<style>
+			body {
+				margin: 0;
+				background: black;
+				color: white;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-start;
+				height: 100vh;
+				font-family: monospace;
+				padding-top: 60px;
+			}
+
+			input {
+				margin-bottom: 140px;
+				padding: 10px;
+				font-size: 24px;
+				text-align: center;
+				width: 200px;
+				border: none;
+				border-radius: 5px;
+			}
+
+			.display-container {
+				border: 16px solid rgb(52, 50, 50);
+				border-radius: 4px;
+				padding: 20px 30px;
+				background-color: black;
+			}
+
+			.display {
+				display: flex;
+				gap: 20px;
+			}
+
+			.digit {
+				position: relative;
+				width: 60px;
+				height: 100px;
+			}
+
+			.segment {
+				position: absolute;
+				background: #330000; /* Off state */
+				transition: background 0.2s, box-shadow 0.2s;
+			}
+
+			.segment.on {
+				background: red;
+				box-shadow: 0 0 12px red;
+			}
+
+			.a,
+			.g,
+			.d {
+				width: 40px;
+				height: 10px;
+				left: 10px;
+				border-radius: 5px;
+			}
+
+			.a {
+				top: 0;
+			}
+			.g {
+				top: 45px;
+			}
+			.d {
+				bottom: 0;
+			}
+
+			.b,
+			.c,
+			.e,
+			.f {
+				width: 10px;
+				height: 40px;
+				border-radius: 5px;
+			}
+
+			.b {
+				top: 5px;
+				right: 0;
+			}
+			.c {
+				bottom: 5px;
+				right: 0;
+			}
+			.e {
+				bottom: 5px;
+				left: 0;
+			}
+			.f {
+				top: 5px;
+				left: 0;
+			}
+
+			.dot {
+				position: absolute;
+				width: 12px;
+				height: 12px;
+				border-radius: 50%;
+				background: #330000;
+				right: -18px;
+				bottom: -5px;
+				transition: background 0.2s, box-shadow 0.2s;
+			}
+
+			.dot.on {
+				background: red;
+				box-shadow: 0 0 8px red;
+			}
+		</style>
+	</head>
+	<body>
+		<input
+			type="text"
+			id="inputField"
+			placeholder="00.00 - 99.99"
+			maxlength="5"
+		/>
+
+		<div class="display-container">
+			<div class="display">
+				<div class="digit" id="d0">
+					<div class="segment a"></div>
+					<div class="segment b"></div>
+					<div class="segment c"></div>
+					<div class="segment d"></div>
+					<div class="segment e"></div>
+					<div class="segment f"></div>
+					<div class="segment g"></div>
+				</div>
+				<div class="digit" id="d1">
+					<div class="segment a"></div>
+					<div class="segment b"></div>
+					<div class="segment c"></div>
+					<div class="segment d"></div>
+					<div class="segment e"></div>
+					<div class="segment f"></div>
+					<div class="segment g"></div>
+					<div class="dot" id="dot"></div>
+				</div>
+				<div class="digit" id="d2">
+					<div class="segment a"></div>
+					<div class="segment b"></div>
+					<div class="segment c"></div>
+					<div class="segment d"></div>
+					<div class="segment e"></div>
+					<div class="segment f"></div>
+					<div class="segment g"></div>
+				</div>
+				<div class="digit" id="d3">
+					<div class="segment a"></div>
+					<div class="segment b"></div>
+					<div class="segment c"></div>
+					<div class="segment d"></div>
+					<div class="segment e"></div>
+					<div class="segment f"></div>
+					<div class="segment g"></div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const digitSegments = {
+				0: ['a', 'b', 'c', 'd', 'e', 'f'],
+				1: ['b', 'c'],
+				2: ['a', 'b', 'g', 'e', 'd'],
+				3: ['a', 'b', 'g', 'c', 'd'],
+				4: ['f', 'g', 'b', 'c'],
+				5: ['a', 'f', 'g', 'c', 'd'],
+				6: ['a', 'f', 'g', 'c', 'd', 'e'],
+				7: ['a', 'b', 'c'],
+				8: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+				9: ['a', 'b', 'c', 'd', 'f', 'g'],
+			};
+
+			function setDigit(id, value) {
+				const digit = document.getElementById(id);
+				const segments = digit.querySelectorAll('.segment');
+				segments.forEach((seg) => seg.classList.remove('on'));
+
+				if (digitSegments[value]) {
+					digitSegments[value].forEach((seg) => {
+						digit.querySelector(`.${seg}`).classList.add('on');
+					});
+				}
+			}
+
+			function updateDisplayFromInput(val) {
+				val = val.replace(/[^0-9.]/g, '').slice(0, 5);
+				const parts = val.split('.');
+				if (parts.length > 2) return;
+
+				let whole = parts[0] || '';
+				let decimal = parts[1] || '';
+
+				if (whole.length > 2) whole = whole.slice(0, 2);
+				if (decimal.length > 2) decimal = decimal.slice(0, 2);
+
+				while (whole.length < 2) whole = '0' + whole;
+				while (decimal.length < 2) decimal += '0';
+
+				const displayVal = (whole + decimal).slice(0, 4);
+
+				setDigit('d0', displayVal[0]);
+				setDigit('d1', displayVal[1]);
+				setDigit('d2', displayVal[2]);
+				setDigit('d3', displayVal[3]);
+				document.getElementById('dot').classList.add('on');
+			}
+
+			document.getElementById('inputField').addEventListener('input', (e) => {
+				updateDisplayFromInput(e.target.value);
+			});
+
+			updateDisplayFromInput('00.00');
+		</script>
+	</body>
+</html>
